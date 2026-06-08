@@ -396,6 +396,12 @@
       transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
     }
 
+    .chart-event-display {
+      padding: 3px 6px;
+      border-radius: 5px;
+      background: radial-gradient(ellipse at center, rgb(255 250 243 / 96%) 0%, rgb(255 250 243 / 88%) 58%, rgb(255 250 243 / 0%) 100%);
+    }
+
     .chart-event-editor:hover,
     .chart-event-editor:focus-within {
       background: rgb(255 250 243 / 94%);
@@ -696,6 +702,12 @@
       return escapeHtml(value);
     }
 
+    function estimatedEventLabelWidth(event) {
+      const labelLength = String(event.label || '').length;
+      const dateLength = formatDate(parseDate(event.date)).length;
+      return Math.min(260, Math.max(86, Math.max(labelLength * 10, dateLength * 8) + 18));
+    }
+
     function normalizeState(raw) {
       if (!raw || !Array.isArray(raw.events)) return structuredClone(defaultState);
 
@@ -870,22 +882,38 @@
         `;
       }).join('');
 
-      const callouts = validEvents.map((event, index) => {
+      const calloutLines = validEvents.map((event, index) => {
         const cx = x(event.parsed);
         const labelY = labelBaseY + (index % 4) * 58;
-        const connectorTopY = labelY + 38;
-        let labelX = cx;
-        let textAnchor = 'middle';
-
-        if (cx < left + 110) {
-          textAnchor = 'start';
-        } else if (cx > width - right - 110) {
-          textAnchor = 'end';
-        }
+        const connectorTopY = labelY + 31;
 
         return `
           <line x1="${cx}" y1="${barY}" x2="${cx}" y2="${connectorTopY}" stroke="${event.color}" stroke-width="3" />
           <circle cx="${cx}" cy="${barY}" r="7" fill="${event.color}" stroke="#fffaf3" stroke-width="4" />
+        `;
+      }).join('');
+
+      const calloutLabels = validEvents.map((event, index) => {
+        const cx = x(event.parsed);
+        const labelY = labelBaseY + (index % 4) * 58;
+        const labelWidth = estimatedEventLabelWidth(event);
+        const labelBoxWidth = labelWidth + 24;
+        let labelBoxX = cx - labelBoxWidth / 2;
+        let labelX = cx;
+        let textAnchor = 'middle';
+
+        if (labelBoxX < 0) {
+          labelBoxX = 0;
+          labelX = 12;
+          textAnchor = 'start';
+        } else if (labelBoxX + labelBoxWidth > width) {
+          labelBoxX = width - labelBoxWidth;
+          labelX = width - 12;
+          textAnchor = 'end';
+        }
+
+        return `
+          <rect x="${labelBoxX}" y="${labelY - 26}" width="${labelBoxWidth}" height="58" rx="5" fill="url(#exportLabelFade)" />
           <text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" fill="#25211d" font-size="18" font-weight="800">${textSvg(event.label)}</text>
           <text x="${labelX}" y="${labelY + 24}" text-anchor="${textAnchor}" fill="#766d63" font-size="16" font-weight="650">${formatDate(event.parsed)}</text>
         `;
@@ -902,13 +930,19 @@
               <clipPath id="exportBarClip">
                 <rect x="${left}" y="${barY}" width="${chartWidth}" height="${barHeight}" rx="5" />
               </clipPath>
+              <radialGradient id="exportLabelFade" cx="50%" cy="50%" r="70%">
+                <stop offset="0%" stop-color="#fffaf3" stop-opacity="0.96" />
+                <stop offset="58%" stop-color="#fffaf3" stop-opacity="0.88" />
+                <stop offset="100%" stop-color="#fffaf3" stop-opacity="0" />
+              </radialGradient>
             </defs>
             <g>${ticks}</g>
             <line x1="${left}" y1="${barY + barHeight / 2}" x2="${width - right}" y2="${barY + barHeight / 2}" stroke="#b8a891" stroke-width="1" />
             <g clip-path="url(#exportBarClip)">${segmentMarkup}</g>
             <rect x="${left}" y="${barY}" width="${chartWidth}" height="${barHeight}" fill="none" stroke="#3a3027" stroke-width="2" rx="5" />
             <g clip-path="url(#exportBarClip)">${segmentLabels}</g>
-            <g>${callouts}</g>
+            <g>${calloutLines}</g>
+            <g>${calloutLabels}</g>
           </g>
         </svg>
       `;
@@ -1238,26 +1272,34 @@
         `;
       }).join('');
 
-      const callouts = validEvents.map((event, index) => {
+      const calloutLines = validEvents.map((event, index) => {
         const cx = x(event.parsed);
         const labelY = labelBaseY + (index % 4) * 48 - 10;
-        const connectorTopY = labelY + 30;
-        const editorWidth = 190;
-        const editorHeight = 48;
-        let editorX = cx - editorWidth / 2;
-        let align = 'center';
-
-        if (cx < left + 90) {
-          editorX = cx - 4;
-          align = 'left';
-        } else if (cx > width - right - 90) {
-          editorX = cx - editorWidth + 4;
-          align = 'right';
-        }
+        const connectorTopY = labelY + 23;
 
         return `
           <line x1="${cx}" y1="${barY}" x2="${cx}" y2="${connectorTopY}" stroke="${event.color}" stroke-width="2" />
           <circle class="event-dot" data-drag-event="${event.id}" cx="${cx}" cy="${barY}" r="5" fill="${event.color}" stroke="#fffaf3" stroke-width="3" tabindex="0" aria-label="Drag ${escapeHtml(event.label)} date" />
+        `;
+      }).join('');
+
+      const calloutLabels = validEvents.map((event, index) => {
+        const cx = x(event.parsed);
+        const labelY = labelBaseY + (index % 4) * 48 - 10;
+        const editorWidth = estimatedEventLabelWidth(event);
+        const editorHeight = 48;
+        let editorX = cx - editorWidth / 2;
+        let align = 'center';
+
+        if (editorX < 0) {
+          editorX = 0;
+          align = 'left';
+        } else if (editorX + editorWidth > width) {
+          editorX = width - editorWidth;
+          align = 'right';
+        }
+
+        return `
           <foreignObject x="${editorX}" y="${labelY - 18}" width="${editorWidth}" height="${editorHeight}">
             <div class="chart-event-editor" style="text-align: ${align};" xmlns="http://www.w3.org/1999/xhtml">
               <div class="chart-event-display">
@@ -1286,7 +1328,8 @@
           <g clip-path="url(#barClip)">${segmentMarkup}</g>
           <rect x="${left}" y="${barY}" width="${chartWidth}" height="${barHeight}" fill="none" stroke="#3a3027" stroke-width="2" rx="5" />
           <g clip-path="url(#barClip)">${segmentLabels}</g>
-          <g>${callouts}</g>
+          <g>${calloutLines}</g>
+          <g>${calloutLabels}</g>
         </svg>
       `;
     }
