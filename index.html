@@ -78,6 +78,23 @@
       overflow: auto;
     }
 
+    .panel-fade {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 360px;
+      height: 64px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 140ms ease;
+      background: linear-gradient(to bottom, rgb(225 214 197 / 0%), #e1d6c5 78%);
+      z-index: 3;
+    }
+
+    .panel-fade.visible {
+      opacity: 1;
+    }
+
     .field-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -535,6 +552,10 @@
       .panel {
         position: static;
       }
+
+      .panel-fade {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -575,6 +596,7 @@
         <button type="button" id="addEvent">Add Event</button>
 
       </form>
+      <div class="panel-fade" id="panelFade" aria-hidden="true"></div>
 
       <section class="chart-card" aria-label="Date range chart preview">
         <div class="chart-wrap">
@@ -601,7 +623,9 @@
     const chartNameInline = document.querySelector('#chartNameInline');
     const rangeStart = document.querySelector('#rangeStart');
     const rangeEnd = document.querySelector('#rangeEnd');
+    const controls = document.querySelector('#controls');
     const eventList = document.querySelector('#eventList');
+    const panelFade = document.querySelector('#panelFade');
     const chart = document.querySelector('#chart');
     const addEvent = document.querySelector('#addEvent');
     const openFile = document.querySelector('#openFile');
@@ -708,14 +732,19 @@
       sortEventsChronologically();
       saveState();
       updateChartNameDisplay();
+      syncChartNameInline();
       renderControls();
       renderChart();
+      updatePanelFade();
     }
 
     function updateChartNameDisplay() {
       const name = String(chartName.value || '').trim() || defaultState.name;
       chartNameDisplay.textContent = name;
-      chartNameInline.value = name;
+    }
+
+    function syncChartNameInline() {
+      chartNameInline.value = chartName.value;
     }
 
     function filenameSafeName(value) {
@@ -728,6 +757,11 @@
 
     function setFileStatus(message) {
       fileStatus.textContent = message;
+    }
+
+    function updatePanelFade() {
+      const hasMore = controls.scrollTop + controls.clientHeight < controls.scrollHeight - 2;
+      panelFade.classList.toggle('visible', hasMore);
     }
 
     function saveJsonFile() {
@@ -760,13 +794,13 @@
       const validEvents = getValidEvents(start, end);
       const total = Math.max(1, end - start);
       const width = 1200;
-      const height = 500;
+      const height = 650;
       const left = 56;
       const right = 36;
       const chartWidth = width - left - right;
-      const barY = 330;
+      const barY = 410;
       const barHeight = 54;
-      const labelBaseY = 107;
+      const labelBaseY = 118;
       const x = (date) => left + ((date - start) / total) * chartWidth;
       const segments = [];
       const sortedStarts = validEvents.length
@@ -1074,6 +1108,7 @@
           eventList.append(insert);
         }
       });
+      requestAnimationFrame(updatePanelFade);
     }
 
     function escapeHtml(value) {
@@ -1237,6 +1272,7 @@
 
     chartName.addEventListener('input', () => {
       updateChartNameDisplay();
+      syncChartNameInline();
       saveState();
     });
 
@@ -1245,6 +1281,11 @@
       updateChartNameDisplay();
       saveState();
     });
+
+    chartNameInline.addEventListener('blur', syncChartNameInline);
+
+    controls.addEventListener('scroll', updatePanelFade);
+    window.addEventListener('resize', updatePanelFade);
 
     saveFile.addEventListener('click', saveJsonFile);
     downloadSvg.addEventListener('click', downloadSvgFile);
@@ -1365,8 +1406,10 @@
     sortEventsChronologically();
     saveState();
     updateChartNameDisplay();
+    syncChartNameInline();
     renderControls();
     renderChart();
+    updatePanelFade();
   </script>
 </body>
 </html>
