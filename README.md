@@ -1,10 +1,10 @@
 # Event Chart
 
-A one-page browser tool for building event-based timeline charts.
+A simple app for building event-based timeline charts. You can import and export chart data as JSON, and download PNG and SVG renderings of the chart.
 
 ## Example Chart
 
-![Employment history chart](assets/employment-history.svg)
+![Example project timeline](assets/example-project-timeline.svg)
 
 ## UI
 

@@ -1,0 +1,77 @@
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" width="1200" height="650">
+          <rect width="100%" height="100%" fill="#fffaf3" />
+          <text x="600" y="82" text-anchor="middle" fill="#25211d" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="38" font-weight="750" letter-spacing="-0.025em">Example Project Timeline</text>
+          <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+            <defs>
+              <clipPath id="exportBarClip">
+                <rect x="56" y="410" width="1108" height="54" rx="5" />
+              </clipPath>
+              <radialGradient id="exportLabelFade" cx="50%" cy="50%" r="70%">
+                <stop offset="0%" stop-color="#fffaf3" stop-opacity="0.96" />
+                <stop offset="58%" stop-color="#fffaf3" stop-opacity="0.88" />
+                <stop offset="100%" stop-color="#fffaf3" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <g>
+          <line x1="56" y1="396" x2="56" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="56" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Jan</text>
+          <text x="56" y="530" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">2026</text>
+        
+          <line x1="246.86640426024542" y1="396" x2="246.86640426024542" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="246.86640426024542" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Feb</text>
+          
+        
+          <line x1="419.2618661727252" y1="396" x2="419.2618661727252" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="419.2618661727252" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Mar</text>
+          
+        
+          <line x1="609.8717295670294" y1="396" x2="609.8717295670294" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="609.8717295670294" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Apr</text>
+          
+        
+          <line x1="794.5811530446863" y1="396" x2="794.5811530446863" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="794.5811530446863" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">May</text>
+          
+        
+          <line x1="985.4475573049317" y1="396" x2="985.4475573049317" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="985.4475573049317" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Jun</text>
+          
+        </g>
+            <line x1="56" y1="437" x2="1164" y2="437" stroke="#b8a891" stroke-width="1" />
+            <g clip-path="url(#exportBarClip)"><rect x="56" y="410" width="86.19773095623987" height="54" fill="#c8baa6" /><rect x="142.19773095623987" y="410" width="277.06413521648534" height="54" fill="#4d8f78" /><rect x="419.2618661727252" y="410" width="276.8075943505441" height="54" fill="#d9874a" /><rect x="696.0694605232693" y="410" width="215.49432739059966" height="54" fill="#7d6cc8" /><rect x="911.563787913869" y="410" width="252.43621208613104" height="54" fill="#254f6e" /></g>
+            <rect x="56" y="410" width="1108" height="54" fill="none" stroke="#3a3027" stroke-width="2" rx="5" />
+            <g clip-path="url(#exportBarClip)"><text x="280.7297985644825" y="439" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">Planning</text><text x="557.6656633479972" y="439" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">Development</text><text x="803.8166242185691" y="439" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">QA</text></g>
+            <g>
+          <line x1="142.19773095623987" y1="410" x2="142.19773095623987" y2="149" stroke="#4d8f78" stroke-width="3" />
+          <circle cx="142.19773095623987" cy="410" r="7" fill="#4d8f78" stroke="#fffaf3" stroke-width="4" />
+        
+          <line x1="419.2618661727252" y1="410" x2="419.2618661727252" y2="207" stroke="#d9874a" stroke-width="3" />
+          <circle cx="419.2618661727252" cy="410" r="7" fill="#d9874a" stroke="#fffaf3" stroke-width="4" />
+        
+          <line x1="696.0694605232693" y1="410" x2="696.0694605232693" y2="265" stroke="#7d6cc8" stroke-width="3" />
+          <circle cx="696.0694605232693" cy="410" r="7" fill="#7d6cc8" stroke="#fffaf3" stroke-width="4" />
+        
+          <line x1="911.563787913869" y1="410" x2="911.563787913869" y2="323" stroke="#254f6e" stroke-width="3" />
+          <circle cx="911.563787913869" cy="410" r="7" fill="#254f6e" stroke="#fffaf3" stroke-width="4" />
+        </g>
+            <g>
+          <rect x="53.197730956239866" y="92" width="178" height="58" rx="5" fill="url(#exportLabelFade)" />
+          <text x="142.19773095623987" y="118" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Kickoff</text>
+          <text x="142.19773095623987" y="142" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Jan 15, 2026</text>
+        
+          <rect x="300.2618661727252" y="150" width="238" height="58" rx="5" fill="url(#exportLabelFade)" />
+          <text x="419.2618661727252" y="176" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Finalize Design</text>
+          <text x="419.2618661727252" y="200" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Mar 1, 2026</text>
+        
+          <rect x="583.0694605232693" y="208" width="226" height="58" rx="5" fill="url(#exportLabelFade)" />
+          <text x="696.0694605232693" y="234" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Feature Freeze</text>
+          <text x="696.0694605232693" y="258" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Apr 15, 2026</text>
+        
+          <rect x="822.563787913869" y="266" width="178" height="58" rx="5" fill="url(#exportLabelFade)" />
+          <text x="911.563787913869" y="292" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Launch</text>
+          <text x="911.563787913869" y="316" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">May 20, 2026</text>
+        </g>
+          </g>
+        </svg>
+      
