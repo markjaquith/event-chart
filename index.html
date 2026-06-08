@@ -690,13 +690,13 @@
     }
 
     function updateChartNameDisplay() {
-      const name = chartName.value.trim() || defaultState.name;
+      const name = String(chartName.value || '').trim() || defaultState.name;
       chartNameDisplay.textContent = name;
       chartNameInline.value = name;
     }
 
     function filenameSafeName(value) {
-      const safe = value.trim()
+      const safe = String(value || '').trim()
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
@@ -900,7 +900,7 @@
 
     function getValidEvents(start, end) {
       return events
-        .filter((event) => event.label.trim() && event.date)
+        .filter((event) => String(event.label || '').trim() && event.date)
         .map((event) => ({ ...event, parsed: parseDate(event.date) }))
         .filter((event) => event.parsed >= start && event.parsed <= end)
         .sort((a, b) => a.parsed - b.parsed);
@@ -965,7 +965,7 @@
         return `<rect x="${sx}" y="${barY}" width="${Math.max(2, ex - sx)}" height="${barHeight}" fill="${segment.color}" />`;
       }).join('');
 
-      const segmentLabels = segments.filter((segment) => segment.label.trim()).map((segment) => {
+      const segmentLabels = segments.filter((segment) => String(segment.label || '').trim()).map((segment) => {
         const sx = x(segment.from);
         const ex = x(segment.to);
         const labelX = sx + (ex - sx) / 2;
