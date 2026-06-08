@@ -202,14 +202,13 @@
       color: #b02f26;
       font-size: 1.35rem;
       line-height: 1;
-      transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+      transition: background 140ms ease, color 140ms ease;
     }
 
     .event-row button:hover,
     .event-row button:focus-visible {
       background: rgb(176 47 38 / 10%);
       color: #d6382b;
-      transform: scale(1.08);
     }
 
     .event-insert {
@@ -221,7 +220,7 @@
       background: rgb(37 79 110 / 16%);
       color: var(--accent);
       font-size: 0.84rem;
-      transition: width 160ms ease, background 160ms ease, color 160ms ease;
+      transition: width 160ms ease 300ms, background 160ms ease 300ms, color 160ms ease 300ms;
       white-space: nowrap;
     }
 
@@ -234,6 +233,7 @@
       width: 108px;
       background: var(--accent);
       color: white;
+      transition-delay: 0ms;
     }
 
     .event-insert:hover::before,
@@ -289,14 +289,79 @@
       font-weight: 650;
     }
 
-    .event-label {
-      fill: var(--ink);
+    .chart-event-editor {
+      position: relative;
+      width: 100%;
+      padding: 4px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .chart-event-editor:hover,
+    .chart-event-editor:focus-within {
+      background: rgb(255 250 243 / 94%);
+      border-color: rgb(86 63 38 / 18%);
+      box-shadow: 0 8px 22px rgb(65 48 28 / 10%);
+    }
+
+    .chart-event-editor input {
+      display: block;
+      min-height: 0;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      padding: 1px 2px;
+      text-align: inherit;
+    }
+
+    .chart-event-editor input:focus {
+      outline: 0;
+      background: white;
+    }
+
+    .chart-event-display-title,
+    .chart-event-display-date {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chart-event-display-title {
+      color: var(--ink);
       font-size: 13px;
       font-weight: 800;
     }
 
-    .event-date {
-      fill: var(--muted);
+    .chart-event-display-date {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .chart-event-inputs {
+      display: none;
+    }
+
+    .chart-event-editor:hover .chart-event-display,
+    .chart-event-editor:focus-within .chart-event-display {
+      display: none;
+    }
+
+    .chart-event-editor:hover .chart-event-inputs,
+    .chart-event-editor:focus-within .chart-event-inputs {
+      display: block;
+    }
+
+    .chart-event-title-input {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .chart-event-date-input {
+      color: var(--muted);
       font-size: 11px;
       font-weight: 650;
     }
@@ -398,9 +463,9 @@
       rangeStart: '2026-01-01',
       rangeEnd: '2026-06-30',
       events: [
-        { label: 'Kickoff', segmentLabel: '', date: '2026-01-15', color: '#4d8f78' },
-        { label: 'Design Freeze', segmentLabel: '', date: '2026-03-01', color: '#d9874a' },
-        { label: 'Launch', segmentLabel: '', date: '2026-05-20', color: '#7d6cc8' }
+        { id: 'event-kickoff', label: 'Kickoff', segmentLabel: '', date: '2026-01-15', color: '#4d8f78' },
+        { id: 'event-design-freeze', label: 'Design Freeze', segmentLabel: '', date: '2026-03-01', color: '#d9874a' },
+        { id: 'event-launch', label: 'Launch', segmentLabel: '', date: '2026-05-20', color: '#7d6cc8' }
       ]
     };
 
@@ -439,12 +504,18 @@
         rangeStart: raw.rangeStart || defaultState.rangeStart,
         rangeEnd: raw.rangeEnd || defaultState.rangeEnd,
         events: raw.events.map((event) => ({
+          id: event.id || createEventId(),
           label: event.label || '',
           segmentLabel: event.segmentLabel || '',
           date: event.date || '',
           color: /^#[0-9a-f]{6}$/i.test(event.color) ? event.color : '#254f6e'
         }))
       };
+    }
+
+    function createEventId() {
+      if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+      return `event-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
     function loadState() {
@@ -596,11 +667,21 @@
     }
 
     function addNewEvent(date) {
-      events.push({ label: 'New event', segmentLabel: '', date, color: '#254f6e' });
+      events.push({ id: createEventId(), label: 'New event', segmentLabel: '', date, color: '#254f6e' });
       normalizeRangeToEvents();
       saveState();
       renderControls();
       renderChart();
+    }
+
+    function updateEvent(eventId, field, value) {
+      const event = events.find((item) => item.id === eventId);
+      if (!event) return;
+
+      event[field] = value;
+      normalizeRangeToEvents();
+      saveState();
+      renderControls();
     }
 
     function renderControls() {
@@ -739,22 +820,34 @@
         const cx = x(event.parsed);
         const labelY = labelBaseY + (index % 4) * 48 - 10;
         const connectorTopY = labelY + 30;
-        let labelX = cx;
-        let textAnchor = 'middle';
+        const editorWidth = 190;
+        const editorHeight = 48;
+        let editorX = cx - editorWidth / 2;
+        let align = 'center';
 
         if (cx < left + 90) {
-          labelX = cx;
-          textAnchor = 'start';
+          editorX = cx - 4;
+          align = 'left';
         } else if (cx > width - right - 90) {
-          labelX = cx;
-          textAnchor = 'end';
+          editorX = cx - editorWidth + 4;
+          align = 'right';
         }
 
         return `
           <line x1="${cx}" y1="${barY}" x2="${cx}" y2="${connectorTopY}" stroke="${event.color}" stroke-width="2" />
           <circle cx="${cx}" cy="${barY}" r="5" fill="${event.color}" stroke="#fffaf3" stroke-width="3" />
-          <text class="event-label" x="${labelX}" y="${labelY}" text-anchor="${textAnchor}">${escapeHtml(event.label)}</text>
-          <text class="event-date" x="${labelX}" y="${labelY + 16}" text-anchor="${textAnchor}">${formatDate(event.parsed)}</text>
+          <foreignObject x="${editorX}" y="${labelY - 18}" width="${editorWidth}" height="${editorHeight}">
+            <div class="chart-event-editor" style="text-align: ${align};" xmlns="http://www.w3.org/1999/xhtml">
+              <div class="chart-event-display">
+                <div class="chart-event-display-title">${escapeHtml(event.label)}</div>
+                <div class="chart-event-display-date">${formatDate(event.parsed)}</div>
+              </div>
+              <div class="chart-event-inputs">
+                <input class="chart-event-title-input" type="text" value="${escapeHtml(event.label)}" data-chart-event="${event.id}" data-field="label" aria-label="Edit ${escapeHtml(event.label)} title">
+                <input class="chart-event-date-input" type="date" value="${event.date}" data-chart-event="${event.id}" data-field="date" aria-label="Edit ${escapeHtml(event.label)} date">
+              </div>
+            </div>
+          </foreignObject>
         `;
       }).join('');
 
@@ -805,6 +898,27 @@
       event.preventDefault();
       document.body.classList.remove('drag-over');
       openJsonFile(event.dataTransfer.files[0]);
+    });
+
+    chart.addEventListener('input', (event) => {
+      const input = event.target.closest('[data-chart-event]');
+      if (!input) return;
+
+      updateEvent(input.dataset.chartEvent, input.dataset.field, input.value);
+    });
+
+    chart.addEventListener('change', (event) => {
+      const input = event.target.closest('[data-chart-event]');
+      if (!input) return;
+
+      updateEvent(input.dataset.chartEvent, input.dataset.field, input.value);
+    });
+
+    chart.addEventListener('focusout', (event) => {
+      const editor = event.target.closest('.chart-event-editor');
+      if (!editor || editor.contains(event.relatedTarget)) return;
+
+      renderChart();
     });
 
     eventList.addEventListener('input', (event) => {
