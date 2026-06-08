@@ -171,6 +171,20 @@
       background: #c9b392;
     }
 
+    button.danger {
+      width: 100%;
+      margin: 12px 0;
+      background: transparent;
+      color: #9f2d26;
+      border: 1px solid rgb(159 45 38 / 32%);
+    }
+
+    button.danger:hover,
+    button.danger:focus-visible {
+      background: rgb(159 45 38 / 10%);
+      color: #bd342b;
+    }
+
     .file-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -585,6 +599,7 @@
           <button type="button" class="secondary" id="openFile">Open</button>
           <button type="button" id="saveFile">Save</button>
         </div>
+        <button type="button" class="danger" id="clearData">Clear Data</button>
         <input type="file" id="fileInput" accept="application/json,.json" hidden>
         <p class="file-status" id="fileStatus" aria-live="polite"></p>
 
@@ -630,6 +645,7 @@
     const addEvent = document.querySelector('#addEvent');
     const openFile = document.querySelector('#openFile');
     const saveFile = document.querySelector('#saveFile');
+    const clearData = document.querySelector('#clearData');
     const downloadSvg = document.querySelector('#downloadSvg');
     const downloadPng = document.querySelector('#downloadPng');
     const fileInput = document.querySelector('#fileInput');
@@ -638,13 +654,14 @@
     let eventDotDrag = null;
 
     const defaultState = {
-      name: 'Date range chart',
+      name: 'Example Project Timeline',
       rangeStart: '2026-01-01',
       rangeEnd: '2026-06-30',
       events: [
-        { id: 'event-kickoff', label: 'Kickoff', segmentLabel: '', date: '2026-01-15', color: '#4d8f78' },
-        { id: 'event-design-freeze', label: 'Design Freeze', segmentLabel: '', date: '2026-03-01', color: '#d9874a' },
-        { id: 'event-launch', label: 'Launch', segmentLabel: '', date: '2026-05-20', color: '#7d6cc8' }
+        { id: 'event-kickoff', label: 'Kickoff', segmentLabel: 'Planning', date: '2026-01-15', color: '#4d8f78' },
+        { id: 'event-design-freeze', label: 'Finalize Design', segmentLabel: 'Development', date: '2026-03-01', color: '#d9874a' },
+        { id: 'event-testing', label: 'Feature Freeze', segmentLabel: 'QA', date: '2026-04-15', color: '#7d6cc8' },
+        { id: 'event-launch', label: 'Launch', segmentLabel: '', date: '2026-05-20', color: '#254f6e' }
       ]
     };
 
@@ -736,6 +753,14 @@
       renderControls();
       renderChart();
       updatePanelFade();
+    }
+
+    function clearSavedData() {
+      if (!confirm('Clear all chart data and restore the default example?')) return;
+
+      localStorage.removeItem(STORAGE_KEY);
+      applyState(structuredClone(defaultState));
+      setFileStatus('Cleared saved data.');
     }
 
     function updateChartNameDisplay() {
@@ -1288,6 +1313,7 @@
     window.addEventListener('resize', updatePanelFade);
 
     saveFile.addEventListener('click', saveJsonFile);
+    clearData.addEventListener('click', clearSavedData);
     downloadSvg.addEventListener('click', downloadSvgFile);
     downloadPng.addEventListener('click', downloadPngFile);
     openFile.addEventListener('click', () => fileInput.click());
