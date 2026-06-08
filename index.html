@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Date Range Event Chart</title>
+  <title>Event Chart</title>
   <style>
     :root {
       color-scheme: light;
@@ -159,6 +159,14 @@
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-top: 12px;
+    }
+
+    .png-download {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 10;
+      box-shadow: 0 10px 28px rgb(37 33 29 / 18%);
     }
 
     .file-status {
@@ -575,6 +583,7 @@
         </div>
       </section>
     </section>
+    <button type="button" class="png-download" id="downloadPng">Download PNG</button>
   </main>
 
   <script>
@@ -589,6 +598,7 @@
     const addEvent = document.querySelector('#addEvent');
     const openFile = document.querySelector('#openFile');
     const saveFile = document.querySelector('#saveFile');
+    const downloadPng = document.querySelector('#downloadPng');
     const fileInput = document.querySelector('#fileInput');
     const fileStatus = document.querySelector('#fileStatus');
     const STORAGE_KEY = 'dateRangeCalloutChart:v1';
@@ -630,6 +640,10 @@
 
     function yearLabel(date) {
       return date.toLocaleDateString(undefined, { year: 'numeric' });
+    }
+
+    function textSvg(value) {
+      return escapeHtml(value);
     }
 
     function normalizeState(raw) {
@@ -718,6 +732,158 @@
       link.click();
       URL.revokeObjectURL(link.href);
       setFileStatus('Saved JSON file.');
+    }
+
+    function downloadBlob(blob, filename) {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function exportChartSvg() {
+      const start = parseDate(rangeStart.value);
+      const end = parseDate(rangeEnd.value);
+
+      if (!rangeStart.value || !rangeEnd.value || end <= start) return '';
+
+      const validEvents = getValidEvents(start, end);
+      const total = Math.max(1, end - start);
+      const width = 1200;
+      const height = 500;
+      const left = 56;
+      const right = 36;
+      const chartWidth = width - left - right;
+      const barY = 330;
+      const barHeight = 54;
+      const labelBaseY = 107;
+      const x = (date) => left + ((date - start) / total) * chartWidth;
+      const segments = [];
+      const sortedStarts = validEvents.length
+        ? validEvents
+        : [{ label: 'Range', parsed: start, color: '#254f6e' }];
+
+      if (sortedStarts[0].parsed > start) {
+        segments.push({ from: start, to: sortedStarts[0].parsed, color: '#c8baa6', label: '' });
+      }
+
+      sortedStarts.forEach((event, index) => {
+        segments.push({
+          from: event.parsed,
+          to: index + 1 < sortedStarts.length ? sortedStarts[index + 1].parsed : end,
+          color: event.color,
+          label: event.segmentLabel || ''
+        });
+      });
+
+      const segmentMarkup = segments.map((segment) => {
+        const sx = x(segment.from);
+        const ex = x(segment.to);
+        return `<rect x="${sx}" y="${barY}" width="${Math.max(2, ex - sx)}" height="${barHeight}" fill="${segment.color}" />`;
+      }).join('');
+
+      const segmentLabels = segments.filter((segment) => String(segment.label || '').trim()).map((segment) => {
+        const sx = x(segment.from);
+        const ex = x(segment.to);
+        const labelX = sx + (ex - sx) / 2;
+        return `<text x="${labelX}" y="${barY + barHeight / 2}" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">${textSvg(segment.label)}</text>`;
+      }).join('');
+
+      const ticks = monthTicks(start, end).map((tick) => {
+        const tx = x(tick);
+        const yearMarkup = tick.getMonth() === 0
+          ? `<text x="${tx}" y="${barY + barHeight + 66}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${yearLabel(tick)}</text>`
+          : '';
+        return `
+          <line x1="${tx}" y1="${barY - 14}" x2="${tx}" y2="${barY + barHeight + 14}" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="${tx}" y="${barY + barHeight + 43}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${monthLabel(tick)}</text>
+          ${yearMarkup}
+        `;
+      }).join('');
+
+      const callouts = validEvents.map((event, index) => {
+        const cx = x(event.parsed);
+        const labelY = labelBaseY + (index % 4) * 58;
+        const connectorTopY = labelY + 38;
+        let labelX = cx;
+        let textAnchor = 'middle';
+
+        if (cx < left + 110) {
+          textAnchor = 'start';
+        } else if (cx > width - right - 110) {
+          textAnchor = 'end';
+        }
+
+        return `
+          <line x1="${cx}" y1="${barY}" x2="${cx}" y2="${connectorTopY}" stroke="${event.color}" stroke-width="3" />
+          <circle cx="${cx}" cy="${barY}" r="7" fill="${event.color}" stroke="#fffaf3" stroke-width="4" />
+          <text x="${labelX}" y="${labelY}" text-anchor="${textAnchor}" fill="#25211d" font-size="18" font-weight="800">${textSvg(event.label)}</text>
+          <text x="${labelX}" y="${labelY + 24}" text-anchor="${textAnchor}" fill="#766d63" font-size="16" font-weight="650">${formatDate(event.parsed)}</text>
+        `;
+      }).join('');
+
+      const title = textSvg(String(chartName.value || '').trim() || defaultState.name);
+
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+          <rect width="100%" height="100%" fill="#fffaf3" />
+          <text x="${width / 2}" y="82" text-anchor="middle" fill="#25211d" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="38" font-weight="750" letter-spacing="-0.025em">${title}</text>
+          <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+            <defs>
+              <clipPath id="exportBarClip">
+                <rect x="${left}" y="${barY}" width="${chartWidth}" height="${barHeight}" rx="5" />
+              </clipPath>
+            </defs>
+            <g>${ticks}</g>
+            <line x1="${left}" y1="${barY + barHeight / 2}" x2="${width - right}" y2="${barY + barHeight / 2}" stroke="#b8a891" stroke-width="1" />
+            <g clip-path="url(#exportBarClip)">${segmentMarkup}</g>
+            <rect x="${left}" y="${barY}" width="${chartWidth}" height="${barHeight}" fill="none" stroke="#3a3027" stroke-width="2" rx="5" />
+            <g clip-path="url(#exportBarClip)">${segmentLabels}</g>
+            <g>${callouts}</g>
+          </g>
+        </svg>
+      `;
+    }
+
+    function downloadPngFile() {
+      const svgMarkup = exportChartSvg();
+      if (!svgMarkup) {
+        setFileStatus('Choose a valid date range before exporting PNG.');
+        return;
+      }
+
+      const svgBlob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const image = new Image();
+
+      image.addEventListener('load', () => {
+        const scale = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width * scale;
+        canvas.height = image.height * scale;
+
+        const context = canvas.getContext('2d');
+        context.scale(scale, scale);
+        context.drawImage(image, 0, 0);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            setFileStatus('Could not create PNG.');
+            return;
+          }
+
+          downloadBlob(blob, `${filenameSafeName(chartName.value)}.png`);
+        }, 'image/png');
+      });
+
+      image.addEventListener('error', () => {
+        URL.revokeObjectURL(url);
+        setFileStatus('Could not export PNG.');
+      });
+
+      image.src = url;
     }
 
     function openJsonFile(file) {
@@ -1061,6 +1227,7 @@
     });
 
     saveFile.addEventListener('click', saveJsonFile);
+    downloadPng.addEventListener('click', downloadPngFile);
     openFile.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', () => {
       openJsonFile(fileInput.files[0]);
