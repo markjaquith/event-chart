@@ -850,16 +850,6 @@
       return element.isContentEditable ? element.textContent : element.value;
     }
 
-    function normalizeEditableDate(value) {
-      const text = String(value || '').trim();
-      const parsed = /^\d{4}-\d{2}-\d{2}$/.test(text)
-        ? new Date(`${text}T00:00:00`)
-        : new Date(text);
-      if (!isValidDate(parsed)) return String(value || '').trim();
-
-      return eventsDateValue(parsed);
-    }
-
     function filenameSafeName(value) {
       const safe = String(value || '').trim()
         .toLowerCase()
@@ -1402,7 +1392,7 @@
               </div>
               <div class="chart-event-inputs">
                 <div class="chart-event-title-input" contenteditable="true" role="textbox" data-chart-event="${event.id}" data-field="label" aria-label="Edit ${escapeHtml(event.label)} title">${escapeHtml(event.label)}</div>
-                <div class="chart-event-date-input" contenteditable="true" role="textbox" data-chart-event="${event.id}" data-field="date" aria-label="Edit ${escapeHtml(event.label)} date">${formatDate(event.parsed)}</div>
+                <input class="chart-event-date-input" type="date" value="${event.date}" data-chart-event="${event.id}" data-field="date" aria-label="Edit ${escapeHtml(event.label)} date">
               </div>
             </div>
           </foreignObject>
@@ -1504,7 +1494,6 @@
     chart.addEventListener('input', (event) => {
       const input = event.target.closest('[data-chart-event]');
       if (!input) return;
-      if (input.dataset.field === 'date' && input.isContentEditable) return;
 
       updateEvent(input.dataset.chartEvent, input.dataset.field, editableValue(input));
     });
@@ -1512,7 +1501,6 @@
     chart.addEventListener('change', (event) => {
       const input = event.target.closest('[data-chart-event]');
       if (!input) return;
-      if (input.dataset.field === 'date' && input.isContentEditable) return;
 
       updateEvent(input.dataset.chartEvent, input.dataset.field, editableValue(input));
     });
@@ -1520,13 +1508,6 @@
     chart.addEventListener('focusout', (event) => {
       const editor = event.target.closest('.chart-event-editor, .segment-label-editor');
       if (!editor || editor.contains(event.relatedTarget)) return;
-
-      const dateEditor = event.target.closest('[data-field="date"]');
-      if (dateEditor) {
-        const normalizedDate = normalizeEditableDate(dateEditor.textContent);
-        dateEditor.textContent = normalizedDate;
-        updateEvent(dateEditor.dataset.chartEvent, 'date', normalizedDate);
-      }
 
       renderChart();
     });
@@ -1538,9 +1519,14 @@
         events[index][field] = event.target.value;
         normalizeRangeToEvents();
         saveState();
-        if (field === 'date') renderControls();
         renderChart();
       }
+    });
+
+    eventList.addEventListener('focusout', (event) => {
+      if (event.target.dataset.field !== 'date') return;
+
+      renderControls();
     });
 
     eventList.addEventListener('click', (event) => {
