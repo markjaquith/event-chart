@@ -225,8 +225,9 @@
     }
 
     .event-row {
+      position: relative;
       display: grid;
-      grid-template-columns: 1fr 1fr 44px;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
       padding: 10px;
       border: 1px solid rgb(86 63 38 / 10%);
@@ -238,13 +239,20 @@
       grid-column: 1 / -1;
     }
 
+    .event-row label:first-child {
+      padding-right: 30px;
+    }
+
     .event-row button {
-      align-self: end;
-      min-height: 42px;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      min-height: 24px;
       padding: 0;
       background: transparent;
       color: #b02f26;
-      font-size: 1.35rem;
+      font-size: 1.1rem;
       line-height: 1;
       transition: background 140ms ease, color 140ms ease;
     }
@@ -310,7 +318,7 @@
       display: inline-grid;
       width: 100%;
       padding: 6px 10px;
-      border: 1px solid transparent;
+      border: 1px solid rgb(86 63 38 / 0%);
       border-radius: 5px;
       background: transparent;
       transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
@@ -344,6 +352,7 @@
       padding: 0;
       visibility: hidden;
       appearance: none;
+      cursor: text;
     }
 
     .chart-title-input:focus {
@@ -387,19 +396,31 @@
     }
 
     .chart-event-editor {
-      position: relative;
+      display: grid;
       width: 100%;
       padding: 4px;
-      border: 1px solid transparent;
+      border: 1px solid rgb(86 63 38 / 0%);
       border-radius: 5px;
       background: transparent;
       transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
     }
 
     .chart-event-display {
+      grid-area: 1 / 1;
+      width: 100%;
       padding: 3px 6px;
-      border-radius: 5px;
-      background: radial-gradient(ellipse at center, rgb(255 250 243 / 96%) 0%, rgb(255 250 243 / 88%) 58%, rgb(255 250 243 / 0%) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-event-editor[style*="left"] .chart-event-display {
+      align-items: flex-start;
+    }
+
+    .chart-event-editor[style*="right"] .chart-event-display {
+      align-items: flex-end;
     }
 
     .chart-event-editor:hover,
@@ -411,11 +432,12 @@
 
     .chart-event-editor input {
       display: block;
+      box-sizing: border-box;
       min-height: 0;
       border: 0;
       border-radius: 3px;
       background: transparent;
-      padding: 1px 2px;
+      padding: 0 3px;
       text-align: inherit;
     }
 
@@ -426,6 +448,12 @@
 
     .chart-event-display-title,
     .chart-event-display-date {
+      display: block;
+      line-height: 1.2;
+      max-width: calc(100% - 4px);
+      padding: 0 8px;
+      border-radius: 5px;
+      background: radial-gradient(ellipse at center, rgb(255 250 243 / 96%) 0%, rgb(255 250 243 / 88%) 58%, rgb(255 250 243 / 0%) 100%);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -444,29 +472,63 @@
     }
 
     .chart-event-inputs {
-      display: none;
+      grid-area: 1 / 1;
+      padding: 3px 6px;
+      visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-event-editor[style*="left"] .chart-event-inputs {
+      align-items: flex-start;
+    }
+
+    .chart-event-editor[style*="right"] .chart-event-inputs {
+      align-items: flex-end;
     }
 
     .chart-event-editor:hover .chart-event-display,
     .chart-event-editor:focus-within .chart-event-display {
-      display: none;
+      visibility: hidden;
     }
 
     .chart-event-editor:hover .chart-event-inputs,
     .chart-event-editor:focus-within .chart-event-inputs {
-      display: block;
+      visibility: visible;
     }
 
     .chart-event-title-input {
+      display: block;
+      box-sizing: border-box;
+      max-width: calc(100% - 4px);
+      padding: 0 8px;
+      border-radius: 5px;
       color: var(--ink);
       font-size: 13px;
       font-weight: 800;
+      height: 1.2em;
+      line-height: 1.2;
+      cursor: text;
+    }
+
+    .chart-event-title-input:focus {
+      outline: 0;
+      background: white;
     }
 
     .chart-event-date-input {
+      display: block;
+      box-sizing: border-box;
+      max-width: calc(100% - 4px);
+      padding: 0 8px;
+      border-radius: 5px;
       color: var(--muted);
       font-size: 11px;
       font-weight: 650;
+      height: 1.2em;
+      line-height: 1.2;
     }
 
     .event-dot {
@@ -624,7 +686,7 @@
           <h1 class="chart-title">
             <span class="chart-title-editor">
               <span class="chart-title-text" id="chartNameDisplay"></span>
-              <input class="chart-title-input" type="text" id="chartNameInline" aria-label="Edit chart name">
+              <span class="chart-title-input" id="chartNameInline" contenteditable="true" role="textbox" aria-label="Edit chart name"></span>
             </span>
           </h1>
           <div id="chart"></div>
@@ -705,7 +767,7 @@
     function estimatedEventLabelWidth(event) {
       const labelLength = String(event.label || '').length;
       const dateLength = formatDate(parseDate(event.date)).length;
-      return Math.min(260, Math.max(86, Math.max(labelLength * 10, dateLength * 8) + 18));
+      return Math.min(300, Math.max(150, Math.max(labelLength * 12, dateLength * 10) + 34));
     }
 
     function normalizeState(raw) {
@@ -781,7 +843,21 @@
     }
 
     function syncChartNameInline() {
-      chartNameInline.value = chartName.value;
+      chartNameInline.textContent = chartName.value;
+    }
+
+    function editableValue(element) {
+      return element.isContentEditable ? element.textContent : element.value;
+    }
+
+    function normalizeEditableDate(value) {
+      const text = String(value || '').trim();
+      const parsed = /^\d{4}-\d{2}-\d{2}$/.test(text)
+        ? new Date(`${text}T00:00:00`)
+        : new Date(text);
+      if (!isValidDate(parsed)) return String(value || '').trim();
+
+      return eventsDateValue(parsed);
     }
 
     function filenameSafeName(value) {
@@ -1083,6 +1159,15 @@
       return eventsDateValue(new Date((beforeDate.getTime() + afterDate.getTime()) / 2));
     }
 
+    function midpointRangeStartDate(after) {
+      const beforeDate = parseDate(rangeStart.value);
+      const afterDate = parseDate(after.date);
+
+      if (!isValidDate(beforeDate) || !isValidDate(afterDate)) return rangeStart.value;
+
+      return eventsDateValue(new Date((beforeDate.getTime() + afterDate.getTime()) / 2));
+    }
+
     function addNewEvent(date) {
       events.push({ id: createEventId(), label: 'New event', segmentLabel: '', date, color: '#254f6e' });
       normalizeRangeToEvents();
@@ -1133,6 +1218,15 @@
     function renderControls() {
       sortEventsChronologically();
       eventList.innerHTML = '';
+
+      if (events.length) {
+        const insert = document.createElement('button');
+        insert.type = 'button';
+        insert.className = 'event-insert';
+        insert.dataset.addBeforeFirst = 'true';
+        insert.setAttribute('aria-label', `Add event before ${events[0].label || 'first event'}`);
+        eventList.append(insert);
+      }
 
       events.forEach((event, index) => {
         const row = document.createElement('div');
@@ -1287,7 +1381,7 @@
         const cx = x(event.parsed);
         const labelY = labelBaseY + (index % 4) * 48 - 10;
         const editorWidth = estimatedEventLabelWidth(event);
-        const editorHeight = 48;
+        const editorHeight = 62;
         let editorX = cx - editorWidth / 2;
         let align = 'center';
 
@@ -1300,15 +1394,15 @@
         }
 
         return `
-          <foreignObject x="${editorX}" y="${labelY - 18}" width="${editorWidth}" height="${editorHeight}">
+          <foreignObject x="${editorX}" y="${labelY - 24}" width="${editorWidth}" height="${editorHeight}">
             <div class="chart-event-editor" style="text-align: ${align};" xmlns="http://www.w3.org/1999/xhtml">
               <div class="chart-event-display">
                 <div class="chart-event-display-title">${escapeHtml(event.label)}</div>
                 <div class="chart-event-display-date">${formatDate(event.parsed)}</div>
               </div>
               <div class="chart-event-inputs">
-                <input class="chart-event-title-input" type="text" value="${escapeHtml(event.label)}" data-chart-event="${event.id}" data-field="label" aria-label="Edit ${escapeHtml(event.label)} title">
-                <input class="chart-event-date-input" type="date" value="${event.date}" data-chart-event="${event.id}" data-field="date" aria-label="Edit ${escapeHtml(event.label)} date">
+                <div class="chart-event-title-input" contenteditable="true" role="textbox" data-chart-event="${event.id}" data-field="label" aria-label="Edit ${escapeHtml(event.label)} title">${escapeHtml(event.label)}</div>
+                <div class="chart-event-date-input" contenteditable="true" role="textbox" data-chart-event="${event.id}" data-field="date" aria-label="Edit ${escapeHtml(event.label)} date">${formatDate(event.parsed)}</div>
               </div>
             </div>
           </foreignObject>
@@ -1345,7 +1439,7 @@
     });
 
     chartNameInline.addEventListener('input', () => {
-      chartName.value = chartNameInline.value;
+      chartName.value = chartNameInline.textContent;
       updateChartNameDisplay();
       saveState();
     });
@@ -1410,20 +1504,29 @@
     chart.addEventListener('input', (event) => {
       const input = event.target.closest('[data-chart-event]');
       if (!input) return;
+      if (input.dataset.field === 'date' && input.isContentEditable) return;
 
-      updateEvent(input.dataset.chartEvent, input.dataset.field, input.value);
+      updateEvent(input.dataset.chartEvent, input.dataset.field, editableValue(input));
     });
 
     chart.addEventListener('change', (event) => {
       const input = event.target.closest('[data-chart-event]');
       if (!input) return;
+      if (input.dataset.field === 'date' && input.isContentEditable) return;
 
-      updateEvent(input.dataset.chartEvent, input.dataset.field, input.value);
+      updateEvent(input.dataset.chartEvent, input.dataset.field, editableValue(input));
     });
 
     chart.addEventListener('focusout', (event) => {
       const editor = event.target.closest('.chart-event-editor, .segment-label-editor');
       if (!editor || editor.contains(event.relatedTarget)) return;
+
+      const dateEditor = event.target.closest('[data-field="date"]');
+      if (dateEditor) {
+        const normalizedDate = normalizeEditableDate(dateEditor.textContent);
+        dateEditor.textContent = normalizedDate;
+        updateEvent(dateEditor.dataset.chartEvent, 'date', normalizedDate);
+      }
 
       renderChart();
     });
@@ -1441,6 +1544,12 @@
     });
 
     eventList.addEventListener('click', (event) => {
+      const beforeFirstButton = event.target.closest('[data-add-before-first]');
+      if (beforeFirstButton) {
+        if (events[0]) addNewEvent(midpointRangeStartDate(events[0]));
+        return;
+      }
+
       const insertButton = event.target.closest('[data-add-between]');
       if (insertButton) {
         const index = Number(insertButton.dataset.addBetween);
