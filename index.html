@@ -718,10 +718,13 @@
     const downloadPng = document.querySelector('#downloadPng');
     const fileInput = document.querySelector('#fileInput');
     const fileStatus = document.querySelector('#fileStatus');
-    const STORAGE_KEY = 'dateRangeCalloutChart:v1';
+    const DATA_VERSION = 1;
+    const STORAGE_KEY = 'eventChart';
+    const LEGACY_STORAGE_KEY = 'dateRangeCalloutChart:v1';
     let eventDotDrag = null;
 
     const defaultState = {
+      version: DATA_VERSION,
       name: 'Example Project Timeline',
       rangeStart: '2026-01-01',
       rangeEnd: '2026-06-30',
@@ -774,6 +777,7 @@
       if (!raw || !Array.isArray(raw.events)) return structuredClone(defaultState);
 
       return {
+        version: DATA_VERSION,
         name: raw.name || defaultState.name,
         rangeStart: raw.rangeStart || defaultState.rangeStart,
         rangeEnd: raw.rangeEnd || defaultState.rangeEnd,
@@ -792,16 +796,34 @@
       return `event-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
-    function loadState() {
+    function readSavedState(storageKey) {
+      const stored = localStorage.getItem(storageKey);
+      if (!stored) return null;
+
       try {
-        return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+        return normalizeState(JSON.parse(stored));
       } catch {
-        return structuredClone(defaultState);
+        return null;
       }
+    }
+
+    function loadState() {
+      const saved = readSavedState(STORAGE_KEY);
+      if (saved) return saved;
+
+      const legacy = readSavedState(LEGACY_STORAGE_KEY);
+      if (legacy) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(legacy));
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+        return legacy;
+      }
+
+      return structuredClone(defaultState);
     }
 
     function currentState() {
       return {
+        version: DATA_VERSION,
         name: chartName.value,
         rangeStart: rangeStart.value,
         rangeEnd: rangeEnd.value,
@@ -833,6 +855,7 @@
       if (!confirm('Clear all chart data and restore the default example?')) return;
 
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
       applyState(structuredClone(defaultState));
       setFileStatus('Cleared saved data.');
     }
