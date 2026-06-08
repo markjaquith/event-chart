@@ -500,7 +500,7 @@
       color: #fffaf3;
       font-size: 13px;
       font-weight: 850;
-      line-height: 1.1;
+      line-height: 1.25;
       letter-spacing: 0.02em;
       text-align: center;
       text-shadow: 0 1px 2px rgb(37 33 29 / 55%);
@@ -830,7 +830,7 @@
         const sx = x(segment.from);
         const ex = x(segment.to);
         const labelX = sx + (ex - sx) / 2;
-        return `<text x="${labelX}" y="${barY + barHeight / 2}" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">${textSvg(segment.label)}</text>`;
+        return `<text x="${labelX}" y="${barY + barHeight / 2 + 2}" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">${textSvg(segment.label)}</text>`;
       }).join('');
 
       const ticks = monthTicks(start, end).map((tick) => {
@@ -1192,7 +1192,7 @@
         const labelX = sx + (ex - sx) / 2;
         const editorWidth = Math.min(Math.max(ex - sx - 16, 80), 220);
         return `
-          <foreignObject x="${labelX - editorWidth / 2}" y="${barY + 6}" width="${editorWidth}" height="${barHeight - 12}">
+          <foreignObject x="${labelX - editorWidth / 2}" y="${barY + 3}" width="${editorWidth}" height="${barHeight - 6}">
             <div class="segment-label-editor" xmlns="http://www.w3.org/1999/xhtml">
               <div class="segment-label-display">${escapeHtml(segment.label)}</div>
               <input class="segment-label-input" type="text" value="${escapeHtml(segment.label)}" data-chart-event="${segment.eventId}" data-field="segmentLabel" aria-label="Edit segment label">

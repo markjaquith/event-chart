@@ -1,0 +1,96 @@
+
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 650" width="1200" height="650">
+          <rect width="100%" height="100%" fill="#fffaf3" />
+          <text x="600" y="82" text-anchor="middle" fill="#25211d" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="38" font-weight="750" letter-spacing="-0.025em">Employment History</text>
+          <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+            <defs>
+              <clipPath id="exportBarClip">
+                <rect x="56" y="410" width="1108" height="54" rx="5" />
+              </clipPath>
+            </defs>
+            <g>
+          <line x1="56" y1="396" x2="56" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="56" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Dec</text>
+          
+        
+          <line x1="142.95696202531644" y1="396" x2="142.95696202531644" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="142.95696202531644" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Jan</text>
+          <text x="142.95696202531644" y="530" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">2026</text>
+        
+          <line x1="229.91392405063291" y1="396" x2="229.91392405063291" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="229.91392405063291" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Feb</text>
+          
+        
+          <line x1="308.4556962025316" y1="396" x2="308.4556962025316" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="308.4556962025316" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Mar</text>
+          
+        
+          <line x1="395.2957805907173" y1="396" x2="395.2957805907173" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="395.2957805907173" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Apr</text>
+          
+        
+          <line x1="479.4476793248945" y1="396" x2="479.4476793248945" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="479.4476793248945" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">May</text>
+          
+        
+          <line x1="566.404641350211" y1="396" x2="566.404641350211" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="566.404641350211" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Jun</text>
+          
+        
+          <line x1="650.5565400843882" y1="396" x2="650.5565400843882" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="650.5565400843882" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Jul</text>
+          
+        
+          <line x1="737.5135021097046" y1="396" x2="737.5135021097046" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="737.5135021097046" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Aug</text>
+          
+        
+          <line x1="824.4704641350211" y1="396" x2="824.4704641350211" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="824.4704641350211" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Sep</text>
+          
+        
+          <line x1="908.6223628691982" y1="396" x2="908.6223628691982" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="908.6223628691982" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Oct</text>
+          
+        
+          <line x1="995.5793248945148" y1="396" x2="995.5793248945148" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="995.5793248945148" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Nov</text>
+          
+        
+          <line x1="1079.8481012658228" y1="396" x2="1079.8481012658228" y2="478" stroke="#6f665d" stroke-width="1" opacity="0.2" />
+          <text x="1079.8481012658228" y="507" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">Dec</text>
+          
+        </g>
+            <line x1="56" y1="437" x2="1164" y2="437" stroke="#b8a891" stroke-width="1" />
+            <g clip-path="url(#exportBarClip)"><rect x="56" y="410" width="28.0506329113924" height="54" fill="#c8baa6" /><rect x="84.0506329113924" y="410" width="482.3540084388186" height="54" fill="#4d8f78" /><rect x="566.404641350211" y="410" width="151.473417721519" height="54" fill="#d9874a" /><rect x="717.87805907173" y="410" width="190.7443037974682" height="54" fill="#7d6cc8" /><rect x="908.6223628691982" y="410" width="210.496624472574" height="54" fill="#254f6e" /><rect x="1119.1189873417723" y="410" width="44.881012658227746" height="54" fill="#622222" /></g>
+            <rect x="56" y="410" width="1108" height="54" fill="none" stroke="#3a3027" stroke-width="2" rx="5" />
+            <g clip-path="url(#exportBarClip)"><text x="325.22763713080167" y="437" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">Internship</text><text x="813.2502109704642" y="437" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">Negotiation</text><text x="1013.8706751054852" y="437" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">Employment</text></g>
+            <g>
+          <line x1="84.0506329113924" y1="410" x2="84.0506329113924" y2="156" stroke="#4d8f78" stroke-width="3" />
+          <circle cx="84.0506329113924" cy="410" r="7" fill="#4d8f78" stroke="#fffaf3" stroke-width="4" />
+          <text x="84.0506329113924" y="118" text-anchor="start" fill="#25211d" font-size="18" font-weight="800">Hired as intern</text>
+          <text x="84.0506329113924" y="142" text-anchor="start" fill="#766d63" font-size="16" font-weight="650">Dec 11, 2025</text>
+        
+          <line x1="566.404641350211" y1="410" x2="566.404641350211" y2="214" stroke="#d9874a" stroke-width="3" />
+          <circle cx="566.404641350211" cy="410" r="7" fill="#d9874a" stroke="#fffaf3" stroke-width="4" />
+          <text x="566.404641350211" y="176" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">End of internship</text>
+          <text x="566.404641350211" y="200" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Jun 1, 2026</text>
+        
+          <line x1="717.87805907173" y1="410" x2="717.87805907173" y2="272" stroke="#7d6cc8" stroke-width="3" />
+          <circle cx="717.87805907173" cy="410" r="7" fill="#7d6cc8" stroke="#fffaf3" stroke-width="4" />
+          <text x="717.87805907173" y="234" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Full time offer</text>
+          <text x="717.87805907173" y="258" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Jul 25, 2026</text>
+        
+          <line x1="908.6223628691982" y1="410" x2="908.6223628691982" y2="330" stroke="#254f6e" stroke-width="3" />
+          <circle cx="908.6223628691982" cy="410" r="7" fill="#254f6e" stroke="#fffaf3" stroke-width="4" />
+          <text x="908.6223628691982" y="292" text-anchor="middle" fill="#25211d" font-size="18" font-weight="800">Hired</text>
+          <text x="908.6223628691982" y="316" text-anchor="middle" fill="#766d63" font-size="16" font-weight="650">Oct 1, 2026</text>
+        
+          <line x1="1119.1189873417723" y1="410" x2="1119.1189873417723" y2="156" stroke="#622222" stroke-width="3" />
+          <circle cx="1119.1189873417723" cy="410" r="7" fill="#622222" stroke="#fffaf3" stroke-width="4" />
+          <text x="1119.1189873417723" y="118" text-anchor="end" fill="#25211d" font-size="18" font-weight="800">Terminated</text>
+          <text x="1119.1189873417723" y="142" text-anchor="end" fill="#766d63" font-size="16" font-weight="650">Dec 15, 2026</text>
+        </g>
+          </g>
+        </svg>
+      
