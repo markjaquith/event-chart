@@ -161,11 +161,16 @@
       margin-top: 12px;
     }
 
-    .png-download {
+    .export-downloads {
       position: fixed;
       right: 18px;
       bottom: 18px;
       z-index: 10;
+      display: flex;
+      gap: 8px;
+    }
+
+    .export-downloads button {
       box-shadow: 0 10px 28px rgb(37 33 29 / 18%);
     }
 
@@ -583,7 +588,10 @@
         </div>
       </section>
     </section>
-    <button type="button" class="png-download" id="downloadPng">Download PNG</button>
+    <div class="export-downloads">
+      <button type="button" class="secondary" id="downloadSvg">Download SVG</button>
+      <button type="button" id="downloadPng">Download PNG</button>
+    </div>
   </main>
 
   <script>
@@ -598,6 +606,7 @@
     const addEvent = document.querySelector('#addEvent');
     const openFile = document.querySelector('#openFile');
     const saveFile = document.querySelector('#saveFile');
+    const downloadSvg = document.querySelector('#downloadSvg');
     const downloadPng = document.querySelector('#downloadPng');
     const fileInput = document.querySelector('#fileInput');
     const fileStatus = document.querySelector('#fileStatus');
@@ -884,6 +893,17 @@
       });
 
       image.src = url;
+    }
+
+    function downloadSvgFile() {
+      const svgMarkup = exportChartSvg();
+      if (!svgMarkup) {
+        setFileStatus('Choose a valid date range before exporting SVG.');
+        return;
+      }
+
+      const blob = new Blob([`${svgMarkup}\n`], { type: 'image/svg+xml;charset=utf-8' });
+      downloadBlob(blob, `${filenameSafeName(chartName.value)}.svg`);
     }
 
     function openJsonFile(file) {
@@ -1227,6 +1247,7 @@
     });
 
     saveFile.addEventListener('click', saveJsonFile);
+    downloadSvg.addEventListener('click', downloadSvgFile);
     downloadPng.addEventListener('click', downloadPngFile);
     openFile.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', () => {
