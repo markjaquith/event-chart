@@ -226,6 +226,7 @@
 
     .event-insert::before {
       content: '+';
+      transition: content 0s linear 300ms;
     }
 
     .event-insert:hover,
@@ -239,6 +240,7 @@
     .event-insert:hover::before,
     .event-insert:focus-visible::before {
       content: 'Add Event';
+      transition-delay: 0ms;
     }
 
     #addEvent {
@@ -257,11 +259,62 @@
       margin: 0 0 16px;
       max-width: none;
       width: 100%;
+      text-align: center;
+    }
+
+    .chart-title-editor {
+      display: inline-grid;
+      width: min(640px, 100%);
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .chart-title-editor:hover,
+    .chart-title-editor:focus-within {
+      background: rgb(255 250 243 / 94%);
+      border-color: rgb(86 63 38 / 18%);
+      box-shadow: 0 8px 22px rgb(65 48 28 / 10%);
+    }
+
+    .chart-title-text,
+    .chart-title-input {
+      grid-area: 1 / 1;
+      width: 100%;
+      height: 1.15em;
       color: var(--ink);
       font-size: clamp(1.6rem, 3vw, 3rem);
-      line-height: 1;
-      letter-spacing: -0.05em;
+      font-weight: 750;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
       text-align: center;
+    }
+
+    .chart-title-input {
+      min-height: 0;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      padding: 0;
+      visibility: hidden;
+      appearance: none;
+    }
+
+    .chart-title-input:focus {
+      outline: 0;
+      background: white;
+    }
+
+    .chart-title-editor:hover .chart-title-text,
+    .chart-title-editor:focus-within .chart-title-text {
+      visibility: hidden;
+    }
+
+    .chart-title-editor:hover .chart-title-input,
+    .chart-title-editor:focus-within .chart-title-input {
+      visibility: visible;
     }
 
     .chart-wrap {
@@ -366,6 +419,19 @@
       font-weight: 650;
     }
 
+    .event-dot {
+      cursor: ew-resize;
+      transition: r 120ms ease, stroke-width 120ms ease, filter 120ms ease;
+    }
+
+    .event-dot:hover,
+    .event-dot:focus-visible,
+    body.dragging-event-dot .event-dot[data-dragging="true"] {
+      r: 8px;
+      stroke-width: 4px;
+      filter: drop-shadow(0 3px 5px rgb(37 33 29 / 35%));
+    }
+
     .segment-label {
       fill: #fffaf3;
       font-size: 13px;
@@ -376,6 +442,69 @@
       stroke-linejoin: round;
       stroke-width: 3px;
       text-anchor: middle;
+    }
+
+    .segment-label-editor {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 6px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .segment-label-editor:hover,
+    .segment-label-editor:focus-within {
+      background: rgb(255 250 243 / 18%);
+      border-color: rgb(255 250 243 / 45%);
+      box-shadow: 0 6px 16px rgb(37 33 29 / 18%);
+    }
+
+    .segment-label-display,
+    .segment-label-input {
+      width: 100%;
+      color: #fffaf3;
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+      text-align: center;
+      text-shadow: 0 1px 2px rgb(37 33 29 / 55%);
+    }
+
+    .segment-label-display {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .segment-label-input {
+      display: none;
+      min-height: 0;
+      border: 0;
+      border-radius: 3px;
+      background: rgb(255 255 255 / 92%);
+      color: var(--ink);
+      padding: 1px 3px;
+      text-shadow: none;
+    }
+
+    .segment-label-input:focus {
+      outline: 0;
+    }
+
+    .segment-label-editor:hover .segment-label-display,
+    .segment-label-editor:focus-within .segment-label-display {
+      display: none;
+    }
+
+    .segment-label-editor:hover .segment-label-input,
+    .segment-label-editor:focus-within .segment-label-input {
+      display: block;
     }
 
     .hint {
@@ -436,7 +565,12 @@
 
       <section class="chart-card" aria-label="Date range chart preview">
         <div class="chart-wrap">
-          <h1 class="chart-title" id="chartNameDisplay"></h1>
+          <h1 class="chart-title">
+            <span class="chart-title-editor">
+              <span class="chart-title-text" id="chartNameDisplay"></span>
+              <input class="chart-title-input" type="text" id="chartNameInline" aria-label="Edit chart name">
+            </span>
+          </h1>
           <div id="chart"></div>
         </div>
       </section>
@@ -447,6 +581,7 @@
     const DAY = 24 * 60 * 60 * 1000;
     const chartName = document.querySelector('#chartName');
     const chartNameDisplay = document.querySelector('#chartNameDisplay');
+    const chartNameInline = document.querySelector('#chartNameInline');
     const rangeStart = document.querySelector('#rangeStart');
     const rangeEnd = document.querySelector('#rangeEnd');
     const eventList = document.querySelector('#eventList');
@@ -457,6 +592,7 @@
     const fileInput = document.querySelector('#fileInput');
     const fileStatus = document.querySelector('#fileStatus');
     const STORAGE_KEY = 'dateRangeCalloutChart:v1';
+    let eventDotDrag = null;
 
     const defaultState = {
       name: 'Date range chart',
@@ -554,7 +690,9 @@
     }
 
     function updateChartNameDisplay() {
-      chartNameDisplay.textContent = chartName.value.trim() || defaultState.name;
+      const name = chartName.value.trim() || defaultState.name;
+      chartNameDisplay.textContent = name;
+      chartNameInline.value = name;
     }
 
     function filenameSafeName(value) {
@@ -684,6 +822,35 @@
       renderControls();
     }
 
+    function dateFromChartPointer(clientX) {
+      const svg = chart.querySelector('svg');
+      if (!svg) return '';
+
+      const rect = svg.getBoundingClientRect();
+      const left = Number(svg.dataset.chartLeft);
+      const right = Number(svg.dataset.chartRight);
+      const start = Number(svg.dataset.rangeStart);
+      const end = Number(svg.dataset.rangeEnd);
+      const svgX = ((clientX - rect.left) / rect.width) * 960;
+      const clampedX = Math.max(left, Math.min(right, svgX));
+      const progress = (clampedX - left) / (right - left);
+      const dayOffset = Math.round(((end - start) * progress) / DAY);
+
+      return eventsDateValue(new Date(start + dayOffset * DAY));
+    }
+
+    function updateDraggedEventDate(clientX) {
+      if (!eventDotDrag) return;
+
+      const date = dateFromChartPointer(clientX);
+      if (!date || date === eventDotDrag.lastDate) return;
+
+      eventDotDrag.lastDate = date;
+      updateEvent(eventDotDrag.eventId, 'date', date);
+      renderChart();
+      chart.querySelector(`[data-drag-event="${eventDotDrag.eventId}"]`)?.setAttribute('data-dragging', 'true');
+    }
+
     function renderControls() {
       sortEventsChronologically();
       eventList.innerHTML = '';
@@ -787,6 +954,7 @@
           from: event.parsed,
           to: index + 1 < sortedStarts.length ? sortedStarts[index + 1].parsed : end,
           color: event.color,
+          eventId: event.id,
           label: event.segmentLabel || ''
         });
       });
@@ -801,7 +969,15 @@
         const sx = x(segment.from);
         const ex = x(segment.to);
         const labelX = sx + (ex - sx) / 2;
-        return `<text class="segment-label" x="${labelX}" y="${barY + barHeight / 2}" text-anchor="middle" dominant-baseline="middle">${escapeHtml(segment.label)}</text>`;
+        const editorWidth = Math.min(Math.max(ex - sx - 16, 80), 220);
+        return `
+          <foreignObject x="${labelX - editorWidth / 2}" y="${barY + 6}" width="${editorWidth}" height="${barHeight - 12}">
+            <div class="segment-label-editor" xmlns="http://www.w3.org/1999/xhtml">
+              <div class="segment-label-display">${escapeHtml(segment.label)}</div>
+              <input class="segment-label-input" type="text" value="${escapeHtml(segment.label)}" data-chart-event="${segment.eventId}" data-field="segmentLabel" aria-label="Edit segment label">
+            </div>
+          </foreignObject>
+        `;
       }).join('');
 
       const ticks = monthTicks(start, end).map((tick) => {
@@ -835,7 +1011,7 @@
 
         return `
           <line x1="${cx}" y1="${barY}" x2="${cx}" y2="${connectorTopY}" stroke="${event.color}" stroke-width="2" />
-          <circle cx="${cx}" cy="${barY}" r="5" fill="${event.color}" stroke="#fffaf3" stroke-width="3" />
+          <circle class="event-dot" data-drag-event="${event.id}" cx="${cx}" cy="${barY}" r="5" fill="${event.color}" stroke="#fffaf3" stroke-width="3" tabindex="0" aria-label="Drag ${escapeHtml(event.label)} date" />
           <foreignObject x="${editorX}" y="${labelY - 18}" width="${editorWidth}" height="${editorHeight}">
             <div class="chart-event-editor" style="text-align: ${align};" xmlns="http://www.w3.org/1999/xhtml">
               <div class="chart-event-display">
@@ -852,7 +1028,7 @@
       }).join('');
 
       chart.innerHTML = `
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Horizontal date range chart" aria-describedby="chartDesc">
+        <svg viewBox="0 0 ${width} ${height}" data-chart-left="${left}" data-chart-right="${width - right}" data-range-start="${start.getTime()}" data-range-end="${end.getTime()}" role="img" aria-label="Horizontal date range chart" aria-describedby="chartDesc">
           <desc id="chartDesc">A date range split into colored segments based on event dates.</desc>
           <defs>
             <clipPath id="barClip">
@@ -874,6 +1050,12 @@
     });
 
     chartName.addEventListener('input', () => {
+      updateChartNameDisplay();
+      saveState();
+    });
+
+    chartNameInline.addEventListener('input', () => {
+      chartName.value = chartNameInline.value;
       updateChartNameDisplay();
       saveState();
     });
@@ -900,6 +1082,33 @@
       openJsonFile(event.dataTransfer.files[0]);
     });
 
+    chart.addEventListener('pointerdown', (event) => {
+      const dot = event.target.closest('[data-drag-event]');
+      if (!dot) return;
+
+      event.preventDefault();
+      eventDotDrag = {
+        eventId: dot.dataset.dragEvent,
+        lastDate: events.find((item) => item.id === dot.dataset.dragEvent)?.date || ''
+      };
+      dot.setPointerCapture?.(event.pointerId);
+      dot.setAttribute('data-dragging', 'true');
+      document.body.classList.add('dragging-event-dot');
+    });
+
+    window.addEventListener('pointermove', (event) => {
+      updateDraggedEventDate(event.clientX);
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (!eventDotDrag) return;
+
+      eventDotDrag = null;
+      document.body.classList.remove('dragging-event-dot');
+      renderControls();
+      renderChart();
+    });
+
     chart.addEventListener('input', (event) => {
       const input = event.target.closest('[data-chart-event]');
       if (!input) return;
@@ -915,7 +1124,7 @@
     });
 
     chart.addEventListener('focusout', (event) => {
-      const editor = event.target.closest('.chart-event-editor');
+      const editor = event.target.closest('.chart-event-editor, .segment-label-editor');
       if (!editor || editor.contains(event.relatedTarget)) return;
 
       renderChart();
