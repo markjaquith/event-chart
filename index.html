@@ -701,6 +701,7 @@
 
   <script>
     const DAY = 24 * 60 * 60 * 1000;
+    const DAILY_TICK_RANGE_DAYS = 30;
     const chartName = document.querySelector('#chartName');
     const chartNameDisplay = document.querySelector('#chartNameDisplay');
     const chartNameInline = document.querySelector('#chartNameInline');
@@ -757,6 +758,14 @@
 
     function monthLabel(date) {
       return date.toLocaleDateString(undefined, { month: 'short' });
+    }
+
+    function dayLabel(date) {
+      return date.toLocaleDateString(undefined, { day: 'numeric' });
+    }
+
+    function dayMonthLabel(date) {
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
 
     function yearLabel(date) {
@@ -959,14 +968,14 @@
         return `<text x="${labelX}" y="${barY + barHeight / 2 + 2}" text-anchor="middle" dominant-baseline="middle" fill="#fffaf3" font-size="19" font-weight="850" letter-spacing="0.02em" paint-order="stroke" stroke="rgb(37 33 29 / 35%)" stroke-linejoin="round" stroke-width="4">${textSvg(segment.label)}</text>`;
       }).join('');
 
-      const ticks = monthTicks(start, end).map((tick) => {
-        const tx = x(tick);
-        const yearMarkup = tick.getMonth() === 0
-          ? `<text x="${tx}" y="${barY + barHeight + 66}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${yearLabel(tick)}</text>`
+      const ticks = timelineTicks(start, end).map((tick) => {
+        const tx = x(tick.date);
+        const yearMarkup = shouldShowTickYear(tick)
+          ? `<text x="${tx}" y="${barY + barHeight + 66}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${yearLabel(tick.date)}</text>`
           : '';
         return `
           <line x1="${tx}" y1="${barY - 14}" x2="${tx}" y2="${barY + barHeight + 14}" stroke="#6f665d" stroke-width="1" opacity="0.2" />
-          <text x="${tx}" y="${barY + barHeight + 43}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${monthLabel(tick)}</text>
+          <text x="${tx}" y="${barY + barHeight + 43}" text-anchor="middle" fill="#766d63" font-size="17" font-weight="650">${tickLabel(tick)}</text>
           ${yearMarkup}
         `;
       }).join('');
@@ -1158,9 +1167,11 @@
 
       if (!dates.length) return rangeStart.value;
 
-      const next = new Date(dates[dates.length - 1]);
-      next.setMonth(next.getMonth() + 1);
-      return eventsDateValue(next);
+      const end = parseDate(rangeEnd.value);
+      const latest = dates[dates.length - 1];
+      if (!isValidDate(end) || latest >= end) return eventsDateValue(latest);
+
+      return eventsDateValue(new Date((latest.getTime() + end.getTime()) / 2));
     }
 
     function midpointEventDate(before, after) {
@@ -1306,6 +1317,42 @@
       return ticks;
     }
 
+    function dayTicks(start, end) {
+      const ticks = [];
+      const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+      while (cursor <= end) {
+        ticks.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+      }
+
+      return ticks;
+    }
+
+    function calendarDaySpan(start, end) {
+      const startDay = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+      const endDay = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+      return (endDay - startDay) / DAY;
+    }
+
+    function timelineTicks(start, end) {
+      const tickUnit = calendarDaySpan(start, end) <= DAILY_TICK_RANGE_DAYS ? 'day' : 'month';
+      const dates = tickUnit === 'day' ? dayTicks(start, end) : monthTicks(start, end);
+      return dates.map((date, index) => ({ date, tickUnit, isFirstTick: index === 0 }));
+    }
+
+    function tickLabel(tick) {
+      if (tick.tickUnit === 'month') return monthLabel(tick.date);
+      if (tick.isFirstTick) return dayMonthLabel(tick.date);
+      if (tick.date.getDate() === 1) return dayMonthLabel(tick.date);
+      return dayLabel(tick.date);
+    }
+
+    function shouldShowTickYear(tick) {
+      if (tick.tickUnit === 'month') return tick.date.getMonth() === 0;
+      return tick.isFirstTick || (tick.date.getMonth() === 0 && tick.date.getDate() === 1);
+    }
+
     function renderChart() {
       const start = parseDate(rangeStart.value);
       const end = parseDate(rangeEnd.value);
@@ -1367,14 +1414,14 @@
         `;
       }).join('');
 
-      const ticks = monthTicks(start, end).map((tick) => {
-        const tx = x(tick);
-        const yearMarkup = tick.getMonth() === 0
-          ? `<text class="axis-text" x="${tx}" y="${barY + barHeight + 52}" text-anchor="middle">${yearLabel(tick)}</text>`
+      const ticks = timelineTicks(start, end).map((tick) => {
+        const tx = x(tick.date);
+        const yearMarkup = shouldShowTickYear(tick)
+          ? `<text class="axis-text" x="${tx}" y="${barY + barHeight + 52}" text-anchor="middle">${yearLabel(tick.date)}</text>`
           : '';
         return `
           <line x1="${tx}" y1="${barY - 12}" x2="${tx}" y2="${barY + barHeight + 12}" stroke="#6f665d" stroke-width="1" opacity="0.2" />
-          <text class="axis-text" x="${tx}" y="${barY + barHeight + 34}" text-anchor="middle">${monthLabel(tick)}</text>
+          <text class="axis-text" x="${tx}" y="${barY + barHeight + 34}" text-anchor="middle">${tickLabel(tick)}</text>
           ${yearMarkup}
         `;
       }).join('');
